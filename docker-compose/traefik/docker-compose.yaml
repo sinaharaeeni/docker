@@ -38,6 +38,8 @@ services:
       - traefik.enable=true
       - traefik.http.services.nginx.loadbalancer.server.port=80
       - traefik.http.routers.nginx.rule=PathPrefix(`/`)
+      - traefik.http.middlewares.nginx.basicauth.users=root:{SHA}3Hbp8MAAbo+RngxRXGbbujmC94U= # root:root
+      - traefik.http.routers.nginx.middlewares=nginx
     volumes:
       - ./file/index-home.html:/usr/share/nginx/html/index-home.html
       - ./file/index-webapp.html:/usr/share/nginx/html/index-webapp.html
@@ -61,3 +63,13 @@ services:
       - httpd_conf:/usr/local/apache2/conf
     networks:
       - local
+
+  whoami:
+    image: docker.io/library/traefik/whoami:v1.10.1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.whoami.rule=Host(`whoami.sinaharaeeni.ir`)
+      - traefik.http.services.whoami.loadbalancer.server.port=80
+    networks:
+      - local
+
