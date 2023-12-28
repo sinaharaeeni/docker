@@ -1,0 +1,30 @@
+# Build for run multi web server on the one server
+# Last modify 2023/12/28
+# Version 1.0
+
+version: '3.3'
+
+services:
+  nginx-1:
+    image: docker.io/library/nginx:1.25.3
+    restart: always
+    volumes:
+      - ./file/index-1.html:/usr/share/nginx/html/index.html
+    ports:
+    - 192.168.5.29:80:80
+
+  nginx-2:
+    image: docker.io/library/nginx:1.25.3
+    restart: always
+    volumes:
+      - ./file/index-2.html:/usr/share/nginx/html/index.html
+    ports:
+    - 192.168.5.196:80:80
+
+  nginx-3:
+    image: docker.io/library/nginx:1.25.3
+    restart: always
+    volumes:
+      - ./file/index-3.html:/usr/share/nginx/html/index.html
+    ports:
+    - 192.168.5.197:80:80
