@@ -1,0 +1,82 @@
+# Build for Monitoring-Prometheus
+# Last modify 2023/12/28
+# Version 1.1
+
+version: "3.9"
+
+networks:
+  sina-network:
+
+volumes:
+  grafana_data:
+  prometheus_data:
+  prometheus_config:
+
+services:
+  grafana:
+    container_name: grafana
+    image: docker.io/library/grafana/grafana:10.2.3
+    environment:
+    - GF_SECURITY_ADMIN_USER=admin
+    - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
+    networks:
+    - sina-network
+    volumes:
+    - grafana_data:/var/lib/grafana
+    ports:
+    - 9091:3000
+    restart: always
+
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    networks:
+    - sina-network
+    volumes:
+    - /:/rootfs
+    - /sys:/sys
+    - /var/run:/var/run
+    - /var/lib/docker/:/var/lib/docker
+    - /dev/disk/:/dev/disk
+    - /etc/machine-id:/etc/machine-id
+    - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id
+    ports:
+    - 9092:8080
+    restart: always
+
+  node-exporter:
+    container_name: node-exporter
+    image: docker.io/library/prom/node-exporter:v1.7.0
+    networks:
+    - sina-network
+    volumes:
+    - /proc:/host/proc:ro
+    - /sys:/host/sys:ro
+    - /:/rootfs:ro
+    ports:
+    - 9093:8080
+    restart: always
+
+  prometheus:
+    container_name: prometheus
+    image: docker.io/library/prom/prometheus:v2.48.1
+    networks:
+    - sina-network
+    volumes:
+    - prometheus_config:/etc/prometheus
+    - prometheus_data:/prometheus
+    ports:
+    - 9096:9090
+    restart: always
+
+  mysql-exporter:
+    container_name: mysql-exporter
+    image: docker.io/library/prom/mysqld-exporter:v0.15.1
+    environment:
+    - 'DATA_SOURCE_NAME=root:123Pass456@tcp(mysql:3306)/'
+    - 'MYSQL_ROOT_PASSWORD=123Pass456'
+    networks:
+    - sina-network
+    ports:
+    - 9105:9104
+    restart: always
