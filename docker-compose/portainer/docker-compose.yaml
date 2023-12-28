@@ -1,0 +1,22 @@
+# Build for Portainer
+# Last modify 2023/12/20
+# Version 1.2
+
+# Portainer Business Edition license key: 2-b0J7zhmwjsS0IkJjo9dK+pjPBZyvfsfFuKrK3bE+B9ieoMjf/HZ/4loYvSi5MoBV8H1MMA2b/Vc=
+
+version: "3.9"
+
+volumes:
+  portainer_data:
+
+services:
+  portainer:
+    container_name: portainer
+    image: repo.sinacomsys.local:8082/general/portainer/portainer-ee:2.19.4
+    ports:
+      - 9094:9000
+      - 9095:9443
+    volumes:
+      - portainer_data:/data/
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
