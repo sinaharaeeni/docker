@@ -31,9 +31,9 @@ services:
     environment:
       - TZ=Asia/Tehran
       - "CLOUDFLARE_EMAIL=sharaeeni@gmail.com"
-      - "CLOUDFLARE_API_KEY=bcc7adeb45127f20cb1007233aa17d8f71570"
-      - "CLOUDFLARE_DNS_API_TOKEN=w7wFp5KP97cA2uzayQFHeoRkBLSHrofVkOMOpMUj"
-      - "CLOUDFLARE_ZONE_API_TOKEN=p-NxACrJX9x0_D1xuQjebbTLzesdeFjpgnzzMaML"
+      - "CLOUDFLARE_API_KEY="
+      - "CLOUDFLARE_DNS_API_TOKEN="
+      - "CLOUDFLARE_ZONE_API_TOKEN="
     command:
       - --log.level=DEBUG
       - --api.insecure=true
