@@ -15,7 +15,7 @@ volumes:
 services:
   grafana:
     container_name: grafana
-    image: docker.io/library/grafana/grafana:10.2.3
+    image: grafana/grafana:10.2.3
     environment:
     - GF_SECURITY_ADMIN_USER=admin
     - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
@@ -46,7 +46,7 @@ services:
 
   node-exporter:
     container_name: node-exporter
-    image: docker.io/library/prom/node-exporter:v1.7.0
+    image: prom/node-exporter:v1.7.0
     networks:
     - sina-network
     volumes:
@@ -59,7 +59,7 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: docker.io/library/prom/prometheus:v2.48.1
+    image: prom/prometheus:v2.48.1
     networks:
     - sina-network
     volumes:
@@ -71,7 +71,7 @@ services:
 
   mysql-exporter:
     container_name: mysql-exporter
-    image: docker.io/library/prom/mysqld-exporter:v0.15.1
+    image: prom/mysqld-exporter:v0.15.1
     environment:
     - 'DATA_SOURCE_NAME=root:123Pass456@tcp(mysql:3306)/'
     - 'MYSQL_ROOT_PASSWORD=123Pass456'
