@@ -1,0 +1,19 @@
+# Build for run mikrotik as container
+# Last modify 2023/12/29
+# Version 1.0
+
+version: '3.3'
+
+volumes:
+  mikrotik_data:
+
+services:
+  mikrotik:
+    container_name: mikrotik
+    image: lupael/mikrotik:latest
+    restart: always
+    ports:
+    - 18291:8291
+    - 4433:443
+    volumes:
+    - mikrotik_data:/routeros
