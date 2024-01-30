@@ -1,0 +1,68 @@
+# Build for run registry
+# Last modify 2024/01/25
+# Version 1.0
+
+version: '3.3'
+
+networks:
+  local:
+
+volumes:
+  nexus_data:
+
+services:
+  traefik:
+    container_name: traefik
+#    image: docker.io/library/traefik:v2.10.7
+    image: repo.sinacomsys.local:8082/general/traefik:v2.10.7
+    restart: always
+    command:
+    - --log.level=DEBUG
+    - --api.insecure=true
+    - --providers.docker=true
+    - --providers.docker.exposedbydefault=true
+    - --entrypoints.web.address=:80
+    - --entrypoints.websecure.address=:443
+    ports:
+    - 80:80
+    - 443:443
+    networks:
+    - local
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      - traefik.http.routers.traefik.rule=Host(`traefik.sinaharaeeni.ir`)
+
+  nexus:
+#    image: docker.io/sonatype/nexus3:3.64.0
+    image: repo.sinacomsys.local:8082/general/sonatype/nexus3:3.64.0
+    container_name: nexus
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nexus.rule=Host(`nexus.sinaharaeeni.ir`)
+      - traefik.http.services.nexus.loadbalancer.server.port=8081
+    networks:
+      - local
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - nexus_data:/nexus-data
+    healthcheck:
+      test: curl --fail http://localhost:8081
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 2m
+
+  nexus-exporter:
+    container_name: nexus-exporter
+    image: repo.sinacomsys.local:8082/general/nexus-exporter:0.2.2
+    networks:
+    - local
+    environment:
+    - NEXUS_HOST=http://nexus:8081
+    - NEXUS_USERNAME=monitoring
+    - NEXUS_ADMIN_PASSWORD=local_pass
+    restart: always
