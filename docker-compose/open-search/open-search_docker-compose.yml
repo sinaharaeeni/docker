@@ -1,7 +1,10 @@
+
 version: '3'
+
 services:
   opensearch-node1:
-    image: opensearchproject/opensearch:latest
+#    image: docker.io/opensearchproject/opensearch:2.11.1
+    image: repo.sinacomsys.local:8082/general/opensearchproject/opensearch:2.11.1
     container_name: opensearch-node1
     environment:
       - cluster.name=opensearch-cluster
@@ -25,7 +28,8 @@ services:
     networks:
       - opensearch-net
   opensearch-node2:
-    image: opensearchproject/opensearch:latest
+#    image: docker.io/opensearchproject/opensearch:2.11.1
+    image: repo.sinacomsys.local:8082/general/opensearchproject/opensearch:2.11.1
     container_name: opensearch-node2
     environment:
       - cluster.name=opensearch-cluster
@@ -46,7 +50,8 @@ services:
     networks:
       - opensearch-net
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:latest
+#    image: docker.io/opensearchproject/opensearch-dashboards:2.11.1
+    image: repo.sinacomsys.local:8082/general/opensearchproject/opensearch-dashboards:2.11.1
     container_name: opensearch-dashboards
     ports:
       - 5601:5601
