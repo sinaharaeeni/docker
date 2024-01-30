@@ -1,82 +1,130 @@
 # Build for Monitoring-Prometheus
-# Last modify 2023/12/28
-# Version 1.1
+# Last modify 2024/01/16
+# Version 2.0
 
 version: "3.9"
 
 networks:
-  sina-network:
+  local-network:
 
 volumes:
   grafana_data:
   prometheus_data:
-  prometheus_config:
 
 services:
+  traefik:
+    container_name: traefik
+#    image: docker.io/library/traefik:v2.10.7
+    image: repo.sinacomsys.local:8082/general/traefik:v2.10.7
+    command:
+    - --log.level=DEBUG
+    - --api=true
+    - --api.insecure=true
+    - --providers.docker=true
+    - --providers.docker.exposedbydefault=true
+    - --entrypoints.web.address=:80
+    - --entrypoints.websecure.address=:443
+    ports:
+    - 80:80
+    - 443:443
+    networks:
+    - local-network
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+    - traefik.enable=true
+    - traefik.http.services.traefik.loadbalancer.server.port=8080
+    - traefik.http.routers.traefik.rule=Host(`traefik.sinaharaeeni.ir`)
+    restart: always
+
   grafana:
     container_name: grafana
-    image: grafana/grafana:10.2.3
+#    image: docker.io/grafana/grafana:10.2.3
+    image: repo.sinacomsys.local:8082/general/grafana/grafana:10.2.3
     environment:
     - GF_SECURITY_ADMIN_USER=admin
     - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
     networks:
-    - sina-network
+    - local-network
     volumes:
     - grafana_data:/var/lib/grafana
-    ports:
-    - 9091:3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+      - traefik.http.routers.grafana.rule=Host(`grafana.sinaharaeeni.ir`) || Host(`dashboard.sinaharaeeni.ir`)
     restart: always
 
   cadvisor:
     container_name: cadvisor
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
+#    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    image: repo.sinacomsys.local:8082/general/google/cadvisor:v0.47.2
     networks:
-    - sina-network
+    - local-network
     volumes:
-    - /:/rootfs
-    - /sys:/sys
-    - /var/run:/var/run
-    - /var/lib/docker/:/var/lib/docker
-    - /dev/disk/:/dev/disk
-    - /etc/machine-id:/etc/machine-id
-    - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id
-    ports:
-    - 9092:8080
+    - /:/rootfs:ro
+    - /sys:/sys:ro
+    - /var/run:/var/run:rw
+    - /var/lib/docker/:/var/lib/docker:ro
+    - /dev/disk/:/dev/disk:ro
+    - /etc/machine-id:/etc/machine-id:ro
+    - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.cadvisor.loadbalancer.server.port=8080
+      - traefik.http.routers.cadvisor.rule=Host(`cadvisor.sinaharaeeni.ir`)
     restart: always
 
   node-exporter:
     container_name: node-exporter
-    image: prom/node-exporter:v1.7.0
+#    image: docker.io/prom/node-exporter:v1.7.0
+    image: repo.sinacomsys.local:8082/general/prom/node-exporter:v1.7.0
     networks:
-    - sina-network
+    - local-network
     volumes:
     - /proc:/host/proc:ro
     - /sys:/host/sys:ro
     - /:/rootfs:ro
-    ports:
-    - 9093:8080
     restart: always
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:v2.48.1
+#    image: docker.io/prom/prometheus:v2.48.1
+    image: repo.sinacomsys.local:8082/general/prom/prometheus:v2.48.1
     networks:
-    - sina-network
+    - local-network
     volumes:
-    - prometheus_config:/etc/prometheus
+    - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    - ./config/promettheus-alerts/:/etc/prometheus/alerts/
     - prometheus_data:/prometheus
-    ports:
-    - 9096:9090
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.prometheus.loadbalancer.server.port=9090
+      - traefik.http.routers.prometheus.rule=Host(`prometheus.sinaharaeeni.ir`)
     restart: always
 
   mysql-exporter:
     container_name: mysql-exporter
-    image: prom/mysqld-exporter:v0.15.1
+#    image: docker.io/prom/mysqld-exporter:v0.15.1
+    image: repo.sinacomsys.local:8082/general/prom/mysqld-exporter:v0.15.1
     environment:
     - 'DATA_SOURCE_NAME=root:123Pass456@tcp(mysql:3306)/'
     - 'MYSQL_ROOT_PASSWORD=123Pass456'
     networks:
-    - sina-network
+    - local-network
     ports:
     - 9105:9104
+    restart: always
+
+  alertmanager:
+#    image: docker.io/prom/alertmanager:v0.26.0
+    image: repo.sinacomsys.local:8082/general/prom/alertmanager:v0.26.0
+    container_name: alertmanager
+    networks:
+    - local-network
+    volumes:
+    - ./config/alertmanager.yml:/etc/alertmanager/config.yml
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.alertmanager.loadbalancer.server.port=9093
+      - traefik.http.routers.alertmanager.rule=Host(`alertmanager.sinaharaeeni.ir`)
     restart: always
