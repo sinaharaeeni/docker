@@ -1,6 +1,6 @@
 # Build for run mikrotik as container
-# Last modify 2023/12/29
-# Version 1.0
+# Last modify 2024/01/23
+# Version 1.1
 
 version: '3.3'
 
@@ -10,7 +10,8 @@ volumes:
 services:
   mikrotik:
     container_name: mikrotik
-    image: lupael/mikrotik:latest
+#    image: docker.io/lupael/mikrotik:latest
+    image: repo.sinacomsys.local:8082/general/lupael/mikrotik:latest
     restart: always
     ports:
     - 18291:8291
