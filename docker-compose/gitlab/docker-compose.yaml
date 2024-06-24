@@ -1,6 +1,6 @@
 # Build for run gitlab in docker
-# Last modify 2024/06/23
-# Version 1.2
+# Last modify 2024/06/24
+# Version 1.3
 
 version: '3.7'
 
@@ -16,9 +16,9 @@ services:
         external_url 'https://gitlab.sinaharaeeni.ir:9102'
         gitlab_rails['gitlab_shell_ssh_port'] = 9101
     ports:
-      - 9101:22 # ssh port
-      - 9102:9102 # web port
-      - 9103:9103 # web secure port
+      - '9101:22' # ssh port
+      - '9102:9102' # web port
+      - '9103:9103' # web secure port
     volumes:
       - /srv/gitlab/config:/etc/gitlab
       - /srv/gitlab/logs:/var/log/gitlab
