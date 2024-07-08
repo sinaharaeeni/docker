@@ -1,0 +1,97 @@
+# Last modify 2024/04/07
+# Version 1.1
+
+version: "3.9"
+
+services:
+  traefik:
+    container_name: traefik
+    image: docker.io/library/traefik:v2.10.7
+    restart: always
+    command:
+    # Tell Traefik to discover containers using the Docker API
+    - --providers.docker=true
+    # Enable the Trafik dashboard
+    - --api.dashboard=true
+    # Set up LetsEncrypt
+    - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+    - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+    - --certificatesresolvers.letsencrypt.acme.email=sharaeeni@gmail.com
+    - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    # Set up an insecure listener that redirects all traffic to TLS
+    - --entrypoints.web.address=:80
+    - --entrypoints.web.http.redirections.entrypoint.to=websecure
+    - --entrypoints.web.http.redirections.entrypoint.scheme=https
+    - --entrypoints.websecure.address=:443
+    # Set up the TLS configuration for our websecure listener
+    - --entrypoints.websecure.http.tls=true
+    - --entrypoints.websecure.http.tls.certResolver=letsencrypt
+    - --entrypoints.websecure.http.tls.domains[0].main=sinaharaeeni.ir
+    - --entrypoints.websecure.http.tls.domains[0].sans=*.sinaharaeeni.ir
+    environment:
+    - TZ=Asia/Tehran
+    - "CLOUDFLARE_EMAIL=sharaeeni@gmail.com"
+    - "CLOUDFLARE_API_KEY=8454b69281ef16fe08bae376b16282ca66a31"
+    - "CLOUDFLARE_DNS_API_TOKEN=utMY8bXlSqZEslI4KD2PxgGLWwv_FW_VVLem2rH0"
+    - "CLOUDFLARE_ZONE_API_TOKEN=ZxDZ7EklbQ0FtauCBz6TEjrKABcWGmBJKN5chdqz"
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - certs:/letsencrypt
+    labels:
+    - traefik.enable=true
+    - traefik.http.routers.traefik.entrypoints=websecure
+    - traefik.http.routers.traefik.tls=true
+    - traefik.http.routers.traefik.tls.certresolver=letsencrypt
+    - traefik.http.services.traefik.loadbalancer.server.port=8080
+    - traefik.http.routers.traefik.rule=Host(`traefik.sinaharaeeni.ir`)
+
+  db:
+    restart: always
+    container_name: postgreSQL
+    image: postgres:13.1-alpine
+    volumes:
+    - postgres_data:/var/lib/postgresql/data/
+    - shared_data:/app/data/
+    environment:
+    - POSTGRES_HOST_AUTH_METHOD=trust
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=Hgbr5391
+    - POSTGRES_DB=TherapyDB
+    labels:
+    - traefik.enable=true
+    - traefik.http.routers.postgres.entrypoints=websecure
+    - traefik.http.routers.postgres.tls=true
+    - traefik.http.routers.postgres.tls.certresolver=letsencrypt
+    - traefik.http.services.postgres.loadbalancer.server.port=5432
+    - traefik.http.routers.postgres.rule=Host(`postgres.sinaharaeeni.ir`)
+
+  backend:
+    build: .
+    container_name: backend
+    volumes:
+    - .:/app
+    - media_volume:/app/media
+    - shared_data:/app/data/
+    environment:
+    - POSTGRES_HOST_AUTH_METHOD=trust
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=Hgbr5391
+    - POSTGRES_DB=TherapyDB
+    depends_on:
+    - db
+    command: ./docker-entrypoint.sh
+    labels:
+    - traefik.enable=true
+    - traefik.http.routers.backend.entrypoints=websecure
+    - traefik.http.routers.backend.tls=true
+    - traefik.http.routers.backend.tls.certresolver=letsencrypt
+    - traefik.http.services.backend.loadbalancer.server.port=8000
+    - traefik.http.routers.backend.rule=PathPrefix(`/`)
+
+volumes:
+  postgres_data:
+  media_volume:
+  shared_data:
