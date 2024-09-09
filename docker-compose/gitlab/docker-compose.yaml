@@ -1,6 +1,6 @@
 # Build for run gitlab in docker
-# Last modify 2024/08/25
-# Version 1.4
+# Last modify 2024/09/09
+# Version 1.5
 
 version: '3.7'
 
@@ -24,3 +24,7 @@ services:
       - /srv/gitlab/config:/etc/gitlab
       - /srv/gitlab/logs:/var/log/gitlab
       - /srv/gitlab/data:/var/opt/gitlab
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "3"
