@@ -1,0 +1,54 @@
+# Setup Server
+
+## 1/ SET VARIABLES
+
+1. Edit `.env` file
+2. Edit `postgres-init.sql` and replace password
+
+### 2/ START DOCKERS
+
+    docker-compose up -d     # start docker-compose
+    docker ps -a             # make sure jira and postgres containers is alive
+
+### 3/ SETUP JIRA
+
+1. Open `https://<host-ip-address>/jira`
+2. I'll set it up myself
+3. My Own Database
+    * Database Type: `PostgreSQL`
+    * Hostname: `postgres`
+    * Port: `5432`
+    * Database: `jira`
+    * Username: `admin`
+    * Password: `<POSTGRES_PASSWORD in docker-compose>`
+    * Schema: `public`
+4. Set up application properties
+    * Base URL: `<host-ip-address>`
+5. Specify your license key
+    * Copy *Server ID*
+
+### 4/ GENERATE LICENSE
+
+    docker exec jira java -jar /opt/atlassian-agent.jar -d -n BAT -p 'jira' -o http://localhost:8080 -m <email> -s <Server ID>
+
+    docker exec confluence java -jar /opt/atlassian-agent.jar -d -n BAT -p 'conf' -o http://localhost:8090  -m <email> -s <Server ID>
+
+### 5/ FINISH SETUP
+
+1. copy generated license code to license textbox
+2. Set up administrator account
+3. Set up email notifications
+
+### Create self-signed certificate
+
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx-conf.d/cert.key -out nginx-conf.d/cert.crt -subj "/CN=<host-ip-address>/O=<organization>/OU=<organizational unit>"
+
+### Download latest version of crack tool
+
+1. open https://gitee.com/pengzhile/atlassian-agent/releases
+2. download latest version of atlassian-agent-vx.x.x.tar.gz (Need VPN)
+3. extract file and put/replace atlassian-agent.jar with ./atlassian-agent.jar
+
+### Make user as sudoer
+
+    echo "ubuntu  ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu
