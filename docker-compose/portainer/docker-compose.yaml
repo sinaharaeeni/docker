@@ -1,6 +1,6 @@
 # Build for Portainer
-# Last modify 2024/09/24
-# Version 1.6
+# Last modify 2024/10/14
+# Version 1.7
 
 # Portainer Business Edition license key: 2-b0J7zhmwjsS0IkJjo9dK+pjPBZyvfsfFuKrK3bE+B9ieoMjf/HZ/4loYvSi5MoBV8H1MMA2b/Vc=
 
@@ -12,10 +12,10 @@ volumes:
 services:
   portainer:
     container_name: portainer-main
-    image: docker.io/portainer/portainer-ee:2.21.2
+    image: docker.io/portainer/portainer-ee:2.21.3
     ports:
-      - 9094:9000
-      - 9095:9443
+      - 9094:9000 # http
+      - 9095:9443 # https
     volumes:
       - portainer_data:/data/
       - /var/run/docker.sock:/var/run/docker.sock
