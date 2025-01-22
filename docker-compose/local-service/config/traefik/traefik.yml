@@ -6,10 +6,6 @@ entryPoints:
   metrics:
     address: ":8082"
 
-accessLog:
-  filePath: "/var/log/traefik/access.log"
-  format: "json"
-
 api:
   insecure: true
   dashboard: true
@@ -37,6 +33,10 @@ experimental:
     geoblock:
       moduleName: "github.com/PascalMinder/geoblock"
       version: "v0.2.8"
+
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: "json"
 
 log:
   level: "INFO"

@@ -1,12 +1,19 @@
 # Build for deploy local service
-# Last modified: 2025/01/10
-# Version: 1.2
+# Last modified: 2025/01/22
+# Version: 1.3
 
 version: '3.9'
 
+volumes:
+  - traefik_log:
+  - portainer_data:
+  - nexus_data:
+  - prometheus_alerts:
+  - prometheus_data:
+  - grafana_data:
+
 services:
   traefik:
-    container_name: traefik
     image: docker.io/library/traefik:v3.2.1
     restart: always
     ports:
@@ -16,15 +23,21 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - ./config/traefik/log:/var/log/traefik:rw
+      - traefik_log:/var/log/traefik:rw
+
+  portainer:
+    image: docker.io/portainer/portainer-ee:2.25.1
+    restart: always
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - portainer_data:/data/:rw
 
   nexus:
     image: docker.io/sonatype/nexus3:3.76.0
-    container_name: nexus
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data/nexus:/nexus-data:rw
+      - nexus_data:/nexus-data:rw
     healthcheck:
       test: curl --fail http://localhost:8081
       interval: 10s
@@ -33,88 +46,52 @@ services:
       start_period: 2m
 
   nexus-exporter:
-    container_name: nexus-exporter
     image: docker.io/ocadotechnology/nexus-exporter:0.2.2
     restart: always
     environment:
-    - NEXUS_HOST=http://nexus:8081
-    - NEXUS_USERNAME=monitoring
-    - NEXUS_ADMIN_PASSWORD=local_pass
+      - NEXUS_HOST=http://nexus:8081
+      - NEXUS_USERNAME=monitoring
+      - NEXUS_ADMIN_PASSWORD=local_pass
 
   prometheus:
-    container_name: prometheus
     image: docker.io/prom/prometheus:v3.0.1
     restart: always
     volumes:
-    - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    - ./data/prometheus-alerts/:/etc/prometheus/alerts/:rw
-    - ./data/prometheus:/prometheus:rw
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_alerts:/etc/prometheus/alerts/:rw
+      - prometheus_data:/prometheus:rw
 
   alertmanager:
-    container_name: alertmanager
     image: docker.io/prom/alertmanager:v0.27.0
     restart: always
     volumes:
-    - ./config/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./config/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
 
   grafana:
-    container_name: grafana
     image: docker.io/grafana/grafana:11.3.1
     restart: always
-    environment:
-    - GF_SECURITY_ADMIN_USER=admin
-    - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
     volumes:
-    - ./data/grafana:/var/lib/grafana:rw
+      - grafana_data:/var/lib/grafana:rw
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
 
   cadvisor:
-    container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     restart: always
     volumes:
-    - /:/rootfs:ro
-    - /sys:/sys:ro
-    - /var/run:/var/run:rw
-    - /var/lib/docker/:/var/lib/docker:ro
-    - /dev/disk/:/dev/disk:ro
-    - /etc/machine-id:/etc/machine-id:ro
-    - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - /var/run:/var/run:rw
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
 
   node-exporter:
-    container_name: node-exporter
     image: docker.io/prom/node-exporter:v1.8.2
     restart: always
     volumes:
-    - /proc:/host/proc:ro
-    - /sys:/host/sys:ro
-    - /:/rootfs:ro
-
-  loki:
-    container_name: loki
-    image: docker.io/grafana/loki:main-bd46e4c
-    restart: always
-    volumes:
-      - ./config/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
-      - ./data/loki:/loki:rw
-
-  promtail:
-    container_name: promtail
-    image: docker.io/grafana/promtail:main-bd46e4c
-    restart: always
-    volumes:
-      - ./config/promtail/config.yaml:/etc/promtail/config.yml:ro
-      - /var/log:/var/log:rw
-    ports:
-      - "5144:5144/udp"
-      - "5144:5144/tcp"
-
-  # syslog-ng:
-  #   container_name: syslog-ng
-  #   image: docker.io/balabit/syslog-ng:4.8.0
-  #   restart: always
-  #   ports:
-  #     - "514:514/udp"
-  #     - "514:514/tcp"
-  #   volumes:
-  #     - ./config/syslog-ng.conf:/etc/syslog-ng/syslog-ng.conf:ro
-  #     - ./syslog-logs:/var/log/syslog:rw
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro

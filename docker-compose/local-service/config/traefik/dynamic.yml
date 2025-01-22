@@ -59,7 +59,7 @@ http:
     portainer-service:
       loadBalancer:
         servers:
-          - url: "http://192.168.1.242:9094"
+          - url: "http://portainer:9094"
     jupyter-service:
       loadBalancer:
         servers:
