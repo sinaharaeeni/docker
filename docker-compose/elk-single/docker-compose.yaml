@@ -17,7 +17,7 @@ services:
       - discovery.type=single-node
       - node.name=elasticsearch
       - bootstrap.memory_lock=true
-      - cluster.initial_master_nodes=["elasticsearch"]
+      # - cluster.initial_master_nodes=["elasticsearch"]
       - ELASTIC_USERNAME=${elastic_username}
       - ELASTIC_PASSWORD=${elastic_password}
       - xpack.monitoring.collection.enabled=true
