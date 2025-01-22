@@ -1,0 +1,36 @@
+global:
+  resolve_timeout: 5m
+  # SMTP configuration for email alerts
+  smtp_smarthost: 'smtp.SENDER-SITE:587'
+  smtp_from: 'EMAIL-MAILBOX-FOR-SENDER'
+  smtp_auth_username: 'EMAIL-MAILBOX-FOR-SENDER'
+  smtp_auth_password: 'PASSWORD-SENDER-MAILBOX'
+  smtp_auth_identity: 'USER-SENDER-MAILBOX'
+
+route:
+  # Main route configuration
+  group_by: ['instance', 'severity']
+  group_wait: 30s
+  group_interval: 30s
+  repeat_interval: 30m
+  receiver: 'stage'
+
+  # Sub-routes for Bale Bot and other receivers
+  routes:
+    - match:
+        severity: critical
+      receiver: 'bale-bot'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 1h
+
+receivers:
+  - name: 'stage'
+    email_configs:
+      - send_resolved: true
+        to: 's.haraeeni@sinacomsys.com'
+
+  - name: 'bale-bot'
+    webhook_configs:
+      - url: 'https://tapi.bale.ai/bot624030085:PEE25CbzeocWPGwonSY2CZiREdYoBF9syZWsheku/sendMessage'
+        send_resolved: true

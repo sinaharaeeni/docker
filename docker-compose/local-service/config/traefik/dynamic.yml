@@ -1,0 +1,115 @@
+# Dynamic Configuration for Traefik
+http:
+  routers:
+    zabbix-router:
+      rule: "Host(`zabbix.sinaharaeeni.ir`)"
+      service: zabbix-service
+      entryPoints:
+        - web
+      middlewares:
+        - geoblock-ir
+    portainer-router:
+      rule: "Host(`portainer.sinaharaeeni.ir`)"
+      service: portainer-service
+      entryPoints:
+        - web
+      middlewares:
+        - geoblock-ir
+    jupyter-router:
+      rule: "Host(`jupyter.sinaharaeeni.ir`)"
+      service: jupyter-service
+      entryPoints:
+        - web
+      middlewares:
+        - geoblock-ir
+    traefik-router:
+      rule: "Host(`traefik.sinaharaeeni.ir`)"
+      service: api@internal
+      entryPoints:
+        - web
+      middlewares:
+        - fail2ban-local
+    grafana-router:
+      rule: "Host(`grafana.sinaharaeeni.ir`)"
+      service: grafana-service
+      entryPoints:
+        - web
+      middlewares:
+        - geoblock-ir
+    nexus-router:
+      rule: "Host(`nexus.sinaharaeeni.ir`)"
+      service: nexus-service
+      entryPoints:
+        - web
+      middlewares:
+        - fail2ban-local
+    prometheus-router:
+      rule: "Host(`prometheus.sinaharaeeni.ir`)"
+      service: prometheus-service
+      entryPoints:
+        - web
+      middlewares:
+        - geoblock-ir
+
+  services:
+    zabbix-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.241"
+    portainer-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.242:9094"
+    jupyter-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.242:8888"
+    grafana-service:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"
+    nexus-service:
+      loadBalancer:
+        servers:
+          - url: "http://nexus:8081"
+    prometheus-service:
+      loadBalancer:
+        servers:
+          - url: "http://prometheus:9090"
+
+  middlewares:
+    fail2ban-local:
+      plugin:
+        fail2ban:
+          allowlist:
+            ip: 192.168.1.0/24
+          rules:
+            bantime: 3h
+            enabled: "true"
+            findtime: 10m
+            maxretry: "4"
+            statuscode: 400,401,403-499
+
+    geoblock-ir:
+      plugin:
+        geoblock:
+          silentStartUp: false
+          allowLocalRequests: true
+          logLocalRequests: false
+          logAllowedRequests: false
+          logApiRequests: true
+          api: "https://get.geojs.io/v1/ip/country/{ip}"
+          apiTimeoutMs: 750
+          cacheSize: 15
+          forceMonthlyUpdate: true
+          allowUnknownCountries: false
+          unknownCountryApiResponse: "nil"
+          httpStatusCodeDeniedRequest: 403
+          countries:
+            - IR
+
+    rate-limit:
+      plugin:
+        limit-contrary:
+          average: 5
+          burst: 10
