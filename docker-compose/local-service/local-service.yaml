@@ -1,6 +1,6 @@
 # Build for deploy local service
 # Last modified: 2025/01/22
-# Version: 1.3
+# Version: 1.4
 
 version: '3.9'
 
@@ -95,3 +95,21 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+
+  elasticsearch:
+    image: docker.io/elasticsearch:8.16.3
+    restart: always
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/
+
+  logstash:
+    image: docker.io/logstash:8.16.3
+    restart: always
+    volumes:
+      - logstash_config:/usr/share/logstash
+
+  kibana:
+    image: docker.io/kibana:8.16.3
+    restart: always
+    volumes:
+      - kibana_data:/usr/share/kibana/

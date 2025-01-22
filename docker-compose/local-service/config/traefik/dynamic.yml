@@ -1,81 +1,100 @@
 # Dynamic Configuration for Traefik
 http:
   routers:
-    zabbix-router:
+    zabbix:
       rule: "Host(`zabbix.sinaharaeeni.ir`)"
-      service: zabbix-service
+      service: zabbix
       entryPoints:
         - web
-      middlewares:
-        - geoblock-ir
-    portainer-router:
+
+    portainer:
       rule: "Host(`portainer.sinaharaeeni.ir`)"
-      service: portainer-service
+      service: portainer
       entryPoints:
         - web
-      middlewares:
-        - geoblock-ir
-    jupyter-router:
+
+    jupyter:
       rule: "Host(`jupyter.sinaharaeeni.ir`)"
-      service: jupyter-service
+      service: jupyter
       entryPoints:
         - web
-      middlewares:
-        - geoblock-ir
+
     traefik-router:
       rule: "Host(`traefik.sinaharaeeni.ir`)"
       service: api@internal
       entryPoints:
         - web
-      middlewares:
-        - fail2ban-local
-    grafana-router:
+
+    grafana:
       rule: "Host(`grafana.sinaharaeeni.ir`)"
-      service: grafana-service
+      service: grafana
       entryPoints:
         - web
-      middlewares:
-        - geoblock-ir
-    nexus-router:
+
+    nexus:
       rule: "Host(`nexus.sinaharaeeni.ir`)"
-      service: nexus-service
+      service: nexus
       entryPoints:
         - web
-      middlewares:
-        - fail2ban-local
-    prometheus-router:
+
+    prometheus:
       rule: "Host(`prometheus.sinaharaeeni.ir`)"
-      service: prometheus-service
+      service: prometheus
       entryPoints:
         - web
-      middlewares:
-        - geoblock-ir
+
+    elasticsearch:
+      rule: "Host(`elastic.sinaharaeeni.ir`)"
+      service: elasticsearch
+      entryPoints:
+        - web
+
+    kibana:
+      rule: "Host(`kibana.sinaharaeeni.ir`)"
+      service: kibana 
+      entryPoints:
+        - web
 
   services:
-    zabbix-service:
+    zabbix:
       loadBalancer:
         servers:
           - url: "http://192.168.1.241"
-    portainer-service:
-      loadBalancer:
-        servers:
-          - url: "http://portainer:9094"
-    jupyter-service:
+
+    jupyter:
       loadBalancer:
         servers:
           - url: "http://192.168.1.242:8888"
-    grafana-service:
+
+    grafana:
       loadBalancer:
         servers:
           - url: "http://grafana:3000"
-    nexus-service:
+
+    nexus:
       loadBalancer:
         servers:
           - url: "http://nexus:8081"
-    prometheus-service:
+
+    prometheus:
       loadBalancer:
         servers:
           - url: "http://prometheus:9090"
+
+    portainer:
+      loadBalancer:
+        servers:
+          - url: "http://portainer:9094"
+
+    elasticsearch:
+      loadBalancer:
+        servers:
+          - url: "http://elasticsearch:9200"
+
+    kibana:
+      loadBalancer:
+        servers:
+          - url: "http://kibana:5601"
 
   middlewares:
     fail2ban-local:
