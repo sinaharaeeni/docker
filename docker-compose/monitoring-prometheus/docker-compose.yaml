@@ -1,11 +1,8 @@
 # Build for Monitoring-Prometheus
-# Last modify 2024/01/16
-# Version 2.0
+# Last modify 2024/11/02
+# Version 2.1
 
 version: "3.9"
-
-networks:
-  local-network:
 
 volumes:
   grafana_data:
@@ -14,8 +11,7 @@ volumes:
 services:
   traefik:
     container_name: traefik
-#    image: docker.io/library/traefik:v2.10.7
-    image: repo.sinacomsys.local:8082/general/traefik:v2.10.7
+    image: docker.io/library/traefik:v3.2.0
     command:
     - --log.level=DEBUG
     - --api=true
@@ -27,8 +23,6 @@ services:
     ports:
     - 80:80
     - 443:443
-    networks:
-    - local-network
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
@@ -39,13 +33,10 @@ services:
 
   grafana:
     container_name: grafana
-#    image: docker.io/grafana/grafana:10.2.3
-    image: repo.sinacomsys.local:8082/general/grafana/grafana:10.2.3
+    image: docker.io/grafana/grafana:11.3.0
     environment:
     - GF_SECURITY_ADMIN_USER=admin
     - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
-    networks:
-    - local-network
     volumes:
     - grafana_data:/var/lib/grafana
     labels:
@@ -56,10 +47,7 @@ services:
 
   cadvisor:
     container_name: cadvisor
-#    image: gcr.io/cadvisor/cadvisor:v0.47.2
-    image: repo.sinacomsys.local:8082/general/google/cadvisor:v0.47.2
-    networks:
-    - local-network
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     volumes:
     - /:/rootfs:ro
     - /sys:/sys:ro
@@ -76,10 +64,7 @@ services:
 
   node-exporter:
     container_name: node-exporter
-#    image: docker.io/prom/node-exporter:v1.7.0
-    image: repo.sinacomsys.local:8082/general/prom/node-exporter:v1.7.0
-    networks:
-    - local-network
+    image: docker.io/prom/node-exporter:v1.8.2
     volumes:
     - /proc:/host/proc:ro
     - /sys:/host/sys:ro
@@ -88,13 +73,10 @@ services:
 
   prometheus:
     container_name: prometheus
-#    image: docker.io/prom/prometheus:v2.48.1
-    image: repo.sinacomsys.local:8082/general/prom/prometheus:v2.48.1
-    networks:
-    - local-network
+    image: docker.io/prom/prometheus:v2.55.0
     volumes:
     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-    - ./config/promettheus-alerts/:/etc/prometheus/alerts/
+    - ./config/prometheus-alerts/:/etc/prometheus/alerts/
     - prometheus_data:/prometheus
     labels:
       - traefik.enable=true
@@ -104,23 +86,17 @@ services:
 
   mysql-exporter:
     container_name: mysql-exporter
-#    image: docker.io/prom/mysqld-exporter:v0.15.1
-    image: repo.sinacomsys.local:8082/general/prom/mysqld-exporter:v0.15.1
+    image: docker.io/prom/mysqld-exporter:v0.15.1
     environment:
     - 'DATA_SOURCE_NAME=root:123Pass456@tcp(mysql:3306)/'
     - 'MYSQL_ROOT_PASSWORD=123Pass456'
-    networks:
-    - local-network
     ports:
     - 9105:9104
     restart: always
 
   alertmanager:
-#    image: docker.io/prom/alertmanager:v0.26.0
-    image: repo.sinacomsys.local:8082/general/prom/alertmanager:v0.26.0
+    image: docker.io/prom/alertmanager:v0.27.0
     container_name: alertmanager
-    networks:
-    - local-network
     volumes:
     - ./config/alertmanager.yml:/etc/alertmanager/config.yml
     labels:
