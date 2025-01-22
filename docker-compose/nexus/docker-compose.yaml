@@ -1,0 +1,36 @@
+# Build for nexus sonatype
+# Last modify 2024/09/15
+# Version 1.0
+
+version: "3.9"
+
+volumes:
+  nexus_data:
+
+services:
+  nexus:
+    container_name: nexus
+    image: ${REGISTERY_URL:-docker.io}/sonatype/nexus3:3.72.0
+    ports:
+    - 9099:80
+    environment:
+    - application-port=80
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - nexus_data:/nexus-data
+    restart: always
+    healthcheck:
+      test: curl --fail http://192.168.5.61:9099
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 2m
+
+  nexus-exporter:
+    container_name: nexus-exporter
+    image: ${REGISTERY_URL:-docker.io}/ocadotechnology/nexus-exporter:0.2.2
+    environment:
+    - NEXUS_HOST=http://nexus:8081
+    - NEXUS_USERNAME=monitoring
+    - NEXUS_ADMIN_PASSWORD=local_pass
+    restart: always
