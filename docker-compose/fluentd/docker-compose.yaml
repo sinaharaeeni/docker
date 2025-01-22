@@ -1,0 +1,15 @@
+version: '3'
+services:
+  fluentd:
+    image: fluent/fluentd:v1.17
+    container_name: fluentd
+    ports:
+      - "24224:24224"     # Port for Fluentd's forward protocol
+      - "5140:5140/udp"   # Port for syslog over UDP
+    volumes:
+      - ./fluent.conf:/fluentd/etc/fluent.conf  # Mount configuration
+      - ./logs:/fluentd/logs  # Mount logs directory
+    environment:
+      FLUENTD_CONF: "fluent.conf"
+    command: /bin/sh -c "gem install fluent-plugin-logtail --no-document && chown -R fluent /fluentd && exec fluentd -c /fluentd/etc/fluent.conf"
+    user: root  # Run as root initially to install the plugin
