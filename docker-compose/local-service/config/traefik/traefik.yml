@@ -1,8 +1,16 @@
 entryPoints:
   web:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: "websecure"
+          scheme: "https"
+          permanent: true
   websecure:
     address: ":443"
+    http:
+      tls: {}
   metrics:
     address: ":8082"
 
@@ -24,15 +32,6 @@ metrics:
     addEntryPointsLabels: true
     addRoutersLabels: true
     addServicesLabels: true
-
-experimental:
-  plugins:
-    fail2ban:
-      moduleName: "github.com/tomMoulard/fail2ban"
-      version: "v0.8.3"
-    geoblock:
-      moduleName: "github.com/PascalMinder/geoblock"
-      version: "v0.2.8"
 
 # accessLog:
 #   filePath: "/var/log/traefik/access.log"

@@ -1,6 +1,6 @@
 # Build for deploy local service
-# Last modified: 2025/01/22
-# Version: 1.5
+# Last modified: 2025/01/23
+# Version: 1.6
 
 version: '3.9'
 
@@ -26,6 +26,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       - traefik_log:/var/log/traefik:rw
 
   portainer:

@@ -1,59 +1,67 @@
-# Dynamic Configuration for Traefik
 http:
   routers:
     zabbix:
       rule: "Host(`zabbix.sinaharaeeni.ir`)"
       service: zabbix
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     portainer:
       rule: "Host(`portainer.sinaharaeeni.ir`)"
       service: portainer
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     jupyter:
       rule: "Host(`jupyter.sinaharaeeni.ir`)"
       service: jupyter
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     traefik-router:
       rule: "Host(`traefik.sinaharaeeni.ir`)"
       service: api@internal
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     grafana:
       rule: "Host(`grafana.sinaharaeeni.ir`)"
       service: grafana
       entryPoints:
-        - web
-
+        - websecure
+      tls: {}
     nexus:
       rule: "Host(`nexus.sinaharaeeni.ir`)"
       service: nexus
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     prometheus:
       rule: "Host(`prometheus.sinaharaeeni.ir`)"
       service: prometheus
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     elasticsearch:
       rule: "Host(`elastic.sinaharaeeni.ir`)"
       service: elasticsearch
       entryPoints:
-        - web
+        - websecure
+      tls: {}
 
     kibana:
       rule: "Host(`kibana.sinaharaeeni.ir`)"
       service: kibana
       entryPoints:
-        - web
+        - websecure
+      tls: {}
+
 
   services:
     zabbix:
@@ -96,39 +104,7 @@ http:
         servers:
           - url: "http://kibana:5601"
 
-  middlewares:
-    fail2ban-local:
-      plugin:
-        fail2ban:
-          allowlist:
-            ip: 192.168.1.0/24
-          rules:
-            bantime: 3h
-            enabled: "true"
-            findtime: 10m
-            maxretry: "4"
-            statuscode: 400,401,403-499
-
-    geoblock-ir:
-      plugin:
-        geoblock:
-          silentStartUp: false
-          allowLocalRequests: true
-          logLocalRequests: false
-          logAllowedRequests: false
-          logApiRequests: true
-          api: "https://get.geojs.io/v1/ip/country/{ip}"
-          apiTimeoutMs: 750
-          cacheSize: 15
-          forceMonthlyUpdate: true
-          allowUnknownCountries: false
-          unknownCountryApiResponse: "nil"
-          httpStatusCodeDeniedRequest: 403
-          countries:
-            - IR
-
-    rate-limit:
-      plugin:
-        limit-contrary:
-          average: 5
-          burst: 10
+tls:
+  certificates:
+    - certFile: "/etc/letsencrypt/live/sinaharaeeni.ir/fullchain.pem"
+      keyFile: "/etc/letsencrypt/live/sinaharaeeni.ir/privkey.pem"
