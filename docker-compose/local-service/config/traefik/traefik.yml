@@ -34,10 +34,10 @@ experimental:
       moduleName: "github.com/PascalMinder/geoblock"
       version: "v0.2.8"
 
-accessLog:
-  filePath: "/var/log/traefik/access.log"
-  format: "json"
+# accessLog:
+#   filePath: "/var/log/traefik/access.log"
+#   format: "json"
 
-log:
-  level: "INFO"
-  filePath: "/var/log/traefik/traefik.log"
+# log:
+#   level: "INFO"
+#   filePath: "/var/log/traefik/traefik.log"
