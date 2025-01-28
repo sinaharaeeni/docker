@@ -34,9 +34,17 @@ http:
       entryPoints:
         - websecure
       tls: {}
+
     nexus:
       rule: "Host(`nexus.sinaharaeeni.ir`)"
       service: nexus
+      entryPoints:
+        - websecure
+      tls: {}
+
+    nexus-registry:
+      rule: "Host(`registry.sinaharaeeni.ir`)"
+      service: nexus-registry
       entryPoints:
         - websecure
       tls: {}
@@ -83,6 +91,11 @@ http:
       loadBalancer:
         servers:
           - url: "http://nexus:8081"
+
+    nexus-registry:
+      loadBalancer:
+        servers:
+          - url: "http://nexus:8082"
 
     prometheus:
       loadBalancer:
