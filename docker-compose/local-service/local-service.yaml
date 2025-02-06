@@ -75,16 +75,19 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.49.2
     restart: always
     volumes:
       - /:/rootfs:ro
       - /sys:/sys:ro
-      - /var/run:/var/run:rw
+      - /var/run:/var/run:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
       - /etc/machine-id:/etc/machine-id:ro
       - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
+    privileged: true
+    devices: 
+      - "/dev/kmsg"
 
   node-exporter:
     image: docker.io/prom/node-exporter:v1.8.2
