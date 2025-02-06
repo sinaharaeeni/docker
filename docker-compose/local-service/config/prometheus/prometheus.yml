@@ -1,5 +1,5 @@
 global:
-  scrape_interval:     15s
+  scrape_interval: 15s
   evaluation_interval: 15s
 
   # Attach these labels to any time series or alerts when communicating with
@@ -54,4 +54,14 @@ scrape_configs:
 
   - job_name: 'traefik'
     static_configs:
-      - targets: ['traefik:8082', 'traefik.hamkarane.ir:9113']
+      - targets: ['traefik:8082']
+
+  - job_name: 'traefik-hamkarane'
+    metrics_path: '/metrics'
+    scheme: http
+    static_configs:
+      - targets:
+          - 'metrics.hamkarane.ir:80'
+    basic_auth:
+      username: "metricsadmin"
+      password: "Secure123!"
