@@ -70,6 +70,26 @@ http:
         - websecure
       tls: {}
 
+    cadvisor:
+      rule: "Host(`cadvisor.sinaharaeeni.ir`)"
+      service: cadvisor
+      entryPoints:
+        - websecure
+      tls: {}
+
+    node-exporter:
+      rule: "Host(`node-exporter.sinaharaeeni.ir`)"
+      service: node-exporter
+      entryPoints:
+        - websecure
+      tls: {}
+
+    openstack:
+      rule: "Host(`openstack.sinaharaeeni.ir`)"
+      service: openstack
+      entryPoints:
+        - websecure
+      tls: {}
 
   services:
     zabbix:
@@ -116,6 +136,21 @@ http:
       loadBalancer:
         servers:
           - url: "http://kibana:5601"
+
+    cadvisor:
+      loadBalancer:
+        servers:
+          - url: "http://cadvisor:8080"
+
+    node-exporter:
+      loadBalancer:
+        servers:
+          - url: "http://node-exporter:9100"
+
+    openstack:
+      loadBalancer:
+        servers:
+          - url: "http://172.27.75.100:9999"
 
 tls:
   certificates:
