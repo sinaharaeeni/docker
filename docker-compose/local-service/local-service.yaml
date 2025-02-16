@@ -1,6 +1,6 @@
 # Build for deploy local service
-# Last modified: 2025/01/23
-# Version: 1.6
+# Last modified: 2025/02/16
+# Version: 1.7
 
 version: '3.9'
 
@@ -17,7 +17,7 @@ volumes:
 
 services:
   traefik:
-    image: docker.io/library/traefik:v3.3.2
+    image: docker.io/library/traefik:v3.3.3
     restart: always
     ports:
       - 80:80
@@ -30,7 +30,7 @@ services:
       - traefik_log:/var/log/traefik:rw
 
   portainer:
-    image: docker.io/portainer/portainer-ee:2.25.1
+    image: docker.io/portainer/portainer-ee:2.26.1
     restart: always
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -58,7 +58,7 @@ services:
       - NEXUS_ADMIN_PASSWORD=Sin@2022
 
   prometheus:
-    image: docker.io/prom/prometheus:v3.0.1
+    image: docker.io/prom/prometheus:v3.1.0
     restart: always
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -66,7 +66,7 @@ services:
       - prometheus_data:/prometheus:rw
 
   grafana:
-    image: docker.io/grafana/grafana:11.3.1
+    image: docker.io/grafana/grafana:11.5.1
     restart: always
     volumes:
       - grafana_data:/var/lib/grafana:rw

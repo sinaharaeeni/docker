@@ -1,3 +1,7 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
 entryPoints:
   web:
     address: ":80"
@@ -21,7 +25,7 @@ api:
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: false
+    exposedByDefault: true
   file:
     filename: "/etc/traefik/dynamic.yml"
     watch: true
@@ -33,10 +37,24 @@ metrics:
     addRoutersLabels: true
     addServicesLabels: true
 
-# accessLog:
-#   filePath: "/var/log/traefik/access.log"
-#   format: "json"
+accessLog:
+  filePath: /var/log/traefik/access.log
+  format: json
+  filters:
+    statusCodes:
+      - "400-499"  # Log client errors (4xx)
+      - "500-599"  # Log server errors (5xx)
+  fields:
+    defaultMode: keep
+    headers:
+      names:
+        User-Agent: keep
+        Referer: keep
+        Host: keep
+        Content-Type: keep
+        RequestPath: keep
 
-# log:
-#   level: "INFO"
-#   filePath: "/var/log/traefik/traefik.log"
+log:
+  level: ERROR
+  filePath: /var/log/traefik/error.log
+  format: json
