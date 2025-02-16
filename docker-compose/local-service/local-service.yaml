@@ -37,7 +37,7 @@ services:
         - portainer_data:/data/:rw
 
   nexus:
-    image: docker.io/sonatype/nexus3:3.76.0
+    image: docker.io/sonatype/nexus3:3.77.1
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
