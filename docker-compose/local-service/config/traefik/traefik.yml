@@ -25,7 +25,7 @@ api:
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: true
+    exposedByDefault: false
   file:
     filename: "/etc/traefik/dynamic.yml"
     watch: true
