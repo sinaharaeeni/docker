@@ -1,0 +1,44 @@
+services:
+  n8n:
+    image: n8nio/n8n:1.82.1
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=yourpassword
+      - N8N_HOST=n8n.sinaharaeeni.ir
+      - N8N_PORT=5678
+      - WEBHOOK_TUNNEL_URL=https://n8n.sinaharaeeni.ir
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - local-service_default
+
+  ollama:
+    image: ollama/ollama:0.5.13
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - local-service_default
+
+  webui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: unless-stopped
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - webui_data:/app/backend/data
+    depends_on:
+      - ollama
+    networks:
+      - local-service_default
+
+volumes:
+  n8n_data:
+  ollama_data:
+  webui_data:
+
+networks:
+  local-service_default:
+    external: true

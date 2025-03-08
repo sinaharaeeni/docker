@@ -98,6 +98,20 @@ http:
         - websecure
       tls: {}
 
+    n8n:
+      rule: "Host(`n8n.sinaharaeeni.ir`)"
+      service: n8n
+      entryPoints:
+        - websecure
+      tls: {}
+
+    ollama:
+      rule: "Host(`ollama.sinaharaeeni.ir`)"
+      service: ollama
+      entryPoints:
+        - websecure
+      tls: {}
+
   services:
     zabbix:
       loadBalancer:
@@ -164,6 +178,16 @@ http:
         servers:
           - url: "https://192.168.1.242:9090"
         serversTransport: ssl-ignore
+
+    n8n:
+      loadBalancer:
+        servers:
+          - url: "http://n8n:5678"
+
+    ollama:
+      loadBalancer:
+        servers:
+          - url: "http://webui:8080"
 
   serversTransports:
     ssl-ignore:
