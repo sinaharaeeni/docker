@@ -91,6 +91,13 @@ http:
         - websecure
       tls: {}
 
+    cockpit:
+      rule: "Host(`cockpit.sinaharaeeni.ir`)"
+      service: cockpit
+      entryPoints:
+        - websecure
+      tls: {}
+
   services:
     zabbix:
       loadBalancer:
@@ -151,6 +158,16 @@ http:
       loadBalancer:
         servers:
           - url: "http://172.27.75.100:9999"
+
+    cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.242:9090"
+        serversTransport: ssl-ignore
+
+  serversTransports:
+    ssl-ignore:
+      insecureSkipVerify: true
 
 tls:
   certificates:
