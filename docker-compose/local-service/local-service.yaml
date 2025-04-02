@@ -1,6 +1,6 @@
 # Build for deploy local service
-# Last modified: 2025/03/08
-# Version: 1.8
+# Last modified: 2025/04/02
+# Version: 1.9
 
 volumes:
   traefik_log:
@@ -15,7 +15,7 @@ volumes:
 
 services:
   traefik:
-    image: docker.io/library/traefik:v3.3.4
+    image: docker.io/library/traefik:v3.3.5
     restart: always
     ports:
       - 80:80
@@ -28,14 +28,14 @@ services:
       - traefik_log:/var/log/traefik:rw
 
   portainer:
-    image: docker.io/portainer/portainer-ee:2.27.0
+    image: docker.io/portainer/portainer-ee:2.27.3
     restart: always
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
         - portainer_data:/data/:rw
 
   nexus:
-    image: docker.io/sonatype/nexus3:3.78.1
+    image: docker.io/sonatype/nexus3:3.79.0
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -56,7 +56,7 @@ services:
       - NEXUS_ADMIN_PASSWORD=Sin@2022
 
   prometheus:
-    image: docker.io/prom/prometheus:v3.2.0
+    image: docker.io/prom/prometheus:v3.2.1
     restart: always
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -64,7 +64,7 @@ services:
       - prometheus_data:/prometheus:rw
 
   grafana:
-    image: docker.io/grafana/grafana:11.5.1
+    image: docker.io/grafana/grafana:11.6.0
     restart: always
     volumes:
       - grafana_data:/var/lib/grafana:rw
@@ -73,7 +73,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=Sin@2022
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.2
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
     restart: always
     volumes:
       - /:/rootfs:ro
@@ -88,7 +88,7 @@ services:
       - "/dev/kmsg"
 
   node-exporter:
-    image: docker.io/prom/node-exporter:v1.8.2
+    image: docker.io/prom/node-exporter:v1.9.1
     restart: always
     volumes:
       - /proc:/host/proc:ro
