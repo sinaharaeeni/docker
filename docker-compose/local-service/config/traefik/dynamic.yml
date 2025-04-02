@@ -112,6 +112,20 @@ http:
         - websecure
       tls: {}
 
+    whoami:
+      rule: "Host(`whoami.sinaharaeeni.ir`)"
+      service: whoami
+      entryPoints:
+        - websecure
+      tls: {}
+
+    mlflow:
+      rule: "Host(`mlflow.sinaharaeeni.ir`)"
+      service: mlflow
+      entryPoints:
+        - websecure
+      tls: {}
+
   services:
     zabbix:
       loadBalancer:
@@ -188,6 +202,16 @@ http:
       loadBalancer:
         servers:
           - url: "http://webui:8080"
+
+    whoami:
+      loadBalancer:
+        servers:
+          - url: "http://whoami:80"
+
+    mlflow:
+      loadBalancer:
+        servers:
+          - url: "http://mlflow::5000"
 
   serversTransports:
     ssl-ignore:
