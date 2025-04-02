@@ -30,8 +30,12 @@ services:
   ollama:
     image: docker.io/ollama/ollama:0.6.3
     restart: unless-stopped
+    environment:
+      - OLLAMA_FORCE_CPU=1
     volumes:
       - ollama_data:/root/.ollama
+      - ./config/ollama/Modelfile:/root/.ollama/Modelfile:ro
+      - ./config/ollama/knowledge.txt:/root/.ollama/knowledge.txt:ro
     networks:
       - local-service_default
 
@@ -40,6 +44,7 @@ services:
     restart: unless-stopped
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODEL=phi
     volumes:
       - webui_data:/app/backend/data
     depends_on:
