@@ -27,6 +27,9 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - traefik_log:/var/log/traefik:rw
 
+  whoami:
+    image: docker.io/traefik/whoami:v1.11
+
   portainer:
     image: docker.io/portainer/portainer-ee:2.27.3
     restart: always
