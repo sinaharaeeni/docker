@@ -32,14 +32,14 @@ services:
 
   portainer:
     image: docker.io/portainer/portainer-ee:2.27.3
-    restart: always
+    restart: unless-stopped
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
         - portainer_data:/data/:rw
 
   nexus:
     image: docker.io/sonatype/nexus3:3.79.0
-    restart: always
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - nexus_data:/nexus-data:rw
@@ -52,7 +52,7 @@ services:
 
   nexus-exporter:
     image: docker.io/ocadotechnology/nexus-exporter:0.2.2
-    restart: always
+    restart: unless-stopped
     environment:
       - NEXUS_HOST=http://nexus:8081
       - NEXUS_USERNAME=admin
@@ -68,7 +68,7 @@ services:
 
   grafana:
     image: docker.io/grafana/grafana:11.6.0
-    restart: always
+    restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana:rw
     environment:
@@ -77,7 +77,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.52.1
-    restart: always
+    restart: unless-stopped
     volumes:
       - /:/rootfs:ro
       - /sys:/sys:ro
@@ -92,7 +92,7 @@ services:
 
   node-exporter:
     image: docker.io/prom/node-exporter:v1.9.1
-    restart: always
+    restart: unless-stopped
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
