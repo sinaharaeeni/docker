@@ -1,7 +1,5 @@
-# Last modify 2024/09/24
-# Version 1.0
-
-version: "3.9"
+# Last modify 2025/04/30
+# Version 1.1
 
 volumes:
   postgres-data:
@@ -11,7 +9,7 @@ volumes:
 services:
   nginx:
     container_name: nginx
-    image: ${REGISTERY_URL}/nginx:1.27.1
+    image: ${REGISTERY_URL}/nginx:1.27.5
     restart: always
     ports:
       - 80:80
@@ -26,7 +24,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: ${REGISTERY_URL}/postgres:14.13
+    image: ${REGISTERY_URL}/postgres:14.17
     restart: always
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -36,7 +34,7 @@ services:
 
   jira:
     container_name: jira
-    image: ${REGISTERY_URL}/atlassian/jira-software:9.9.2
+    image: ${REGISTERY_URL}/atlassian/jira-software:9.17.5
     restart: always
     environment:
       ATL_PROXY_NAME: "${HOST_IP}"
@@ -53,7 +51,7 @@ services:
 
   confluence:
     container_name: confluence
-    image: ${REGISTERY_URL}/atlassian/confluence:9.0.1
+    image: ${REGISTERY_URL}/atlassian/confluence:9.0.3
     restart: always
     environment:
       ATL_PROXY_NAME: "${HOST_IP}"
