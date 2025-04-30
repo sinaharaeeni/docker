@@ -12,6 +12,7 @@ volumes:
   elasticsearch_data:
   logstash_data:
   kibana_data:
+  postgres_data:
 
 services:
   traefik:
@@ -97,3 +98,15 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+
+  postgres:
+    image: docker.io/library/postgres:17.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
