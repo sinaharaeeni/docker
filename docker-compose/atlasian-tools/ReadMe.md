@@ -2,7 +2,7 @@
 
 ## Create self-signed certificate for Nginx
 
-In server bash `openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout nginx-conf.d/cert.key -out nginx-conf.d/cert.crt -subj "/CN=<host-ip-address>/O=<organization>/OU=<organizational unit>"`
+In server bash `openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout nginx-conf.d/cert.key -out nginx-conf.d/cert.crt -subj "/CN=<host-ip-address>/O=MyCompany/OU=MyOffice"`
 
 ## Download latest version of crack tool
 
@@ -40,7 +40,7 @@ In server bash `openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout ngi
 
 ### 4- Generate License Jira
 
-In server bash `docker exec jira java -jar /opt/atlassian-agent.jar -d -n BAT -p 'jira' -o http://localhost:8080 -m <email> -s <Server ID>`
+In server bash `docker exec jira java -jar /opt/atlassian-agent.jar -d -n BAT -p 'jira' -o MyCompany -m <email> -s <Server-ID>`
 
 ### 5- Setup Confluence
 
@@ -59,10 +59,21 @@ In server bash `docker exec jira java -jar /opt/atlassian-agent.jar -d -n BAT -p
 
 ### 6- Generate License Confluence
 
-In server bash `docker exec confluence java -jar /opt/atlassian-agent.jar -d -n BAT -p 'conf' -o http://localhost:8090  -m <email> -s <Server ID>`
+In server bash `docker exec confluence java -jar /opt/atlassian-agent.jar -d -n BAT -p 'conf' -o MyCompany -m <email> -s <Server-ID>`
 
 ### 7- Finish Setup
 
 1. copy generated license code to license textbox
 2. Set up administrator account
 3. Set up email notifications
+
+### 8- Crack plugin
+
+1. Install your favorite app
+2. Click on *Buy now*
+3. Fill below details on command
+    * program-name = jira or confluence
+    * plugin-name = *App key* in app details page on *Manage apps*
+    * email = mail address for crack
+    * Server-ID = find in *System Information > Server ID* part
+4. Run command `docker exec <program-name> java -jar /opt/atlassian-agent.jar -d -n BAT -p '<plugin-name>' -o MyCompany -m <email> -s <Server-ID>`
