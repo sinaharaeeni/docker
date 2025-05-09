@@ -1,0 +1,75 @@
+# Build for run elastic, logstash, kibana stack in docker
+# Last modify 2024/09/10
+# Version 1.0
+
+version: '3.9'
+
+volumes:
+  elasticsearch_data:
+  logstash_config:
+  kibana_data:
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: ${registery_url}/elasticsearch:${cluster_version}
+    environment:
+      - discovery.type=single-node
+      - node.name=elasticsearch
+      - bootstrap.memory_lock=true
+      # - cluster.initial_master_nodes=["elasticsearch"]
+      - ELASTIC_USERNAME=${elastic_username}
+      - ELASTIC_PASSWORD=${elastic_password}
+      - xpack.monitoring.collection.enabled=true
+      - xpack.security.enabled=true
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/
+    ports:
+      - 9106:9200
+    restart: always
+
+  logstash:
+    container_name: logstash
+    image: ${registery_url}/logstash:${cluster_version}
+    environment:
+      - XPACK_MONITORING_ELASTICSEARCH_USERNAME=${elastic_username}
+      - XPACK_MONITORING_ELASTICSEARCH_PASSWORD=${elastic_password}
+      - XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - XPACK_MONITORING_ENABLED=true
+    volumes:
+      - logstash_config:/usr/share/logstash
+    ports:
+      - target: 5144
+        published: 5144
+        protocol: tcp
+        mode: host
+      - target: 5144
+        published: 5144
+        protocol: udp
+        mode: host
+      - target: 5000
+        published: 5000
+        protocol: tcp
+        mode: host
+      - target: 5000
+        published: 5000
+        protocol: udp
+        mode: host
+    restart: always
+
+  kibana:
+    container_name: kibana
+    image: ${registery_url}/kibana:${cluster_version}
+    environment:
+      - server.name=kibana
+      - elasticsearch.hosts=http://elasticsearch:9200
+      - server.publicBaseUrl=http://${host_ip}:9107
+      - elasticsearch.username=${elastic_username}
+      - elasticsearch.password=${elastic_password}
+      - xpack.security.enabled=true
+      - monitoring.ui.container.elasticsearch.enabled=true
+    volumes:
+      - kibana_data:/usr/share/kibana/
+    ports:
+      - 9107:5601
+    restart: always
