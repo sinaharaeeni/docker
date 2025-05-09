@@ -1,0 +1,91 @@
+volumes:
+  zabbix-server-etc:
+  zabbix-server-externalscripts:
+  zabbix-server-alerts:
+  zabbix-mysql-data:
+  zabbix-snmptraps:
+
+services:
+  zabbix-server-mysql:
+    image: ${registery_url}/zabbix/zabbix-server-mysql:${cluster_version}
+    container_name: zabbix-server
+    restart: unless-stopped
+    ports:
+      - "10051:10051"
+    environment:
+      - DB_SERVER_HOST=zabbix-mysql
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix-password
+      - MYSQL_ROOT_PASSWORD=root-password
+      - ZBX_STARTVMWARECOLLECTORS=1
+      - ZBX_STARTSNMPTRAPPERS=1
+      - ZBX_SNMPTRAP_FILE=/var/lib/zabbix/snmptraps/snmptraps.log
+    volumes:
+      - zabbix-server-etc:/etc/zabbix
+      - zabbix-server-externalscripts:/usr/lib/zabbix/externalscripts
+      - zabbix-server-alerts:/usr/lib/zabbix/alertscripts
+      - zabbix-snmptraps:/var/lib/zabbix/snmptraps
+    depends_on:
+      - zabbix-mysql
+
+  zabbix-agent:
+    image: ${registery_url}/zabbix/zabbix-agent:${cluster_version}
+    container_name: zabbix-agent
+    restart: unless-stopped
+    ports:
+      - "10050:10050"
+    environment:
+      - ZBX_HOSTNAME=Zabbix server
+      - ZBX_SERVER_HOST=zabbix-server-mysql
+    volumes:
+      - /:/rootfs
+      - /var/run:/var/run
+      - /sys:/sys
+      - /proc:/proc
+    privileged: true
+    depends_on:
+      - zabbix-server-mysql
+
+  zabbix-mysql:
+    image: ${registery_url}/mysql:8.0
+    container_name: zabbix-mysql
+    restart: unless-stopped
+    command: --character-set-server=utf8 --collation-server=utf8_bin --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix-password
+      - MYSQL_ROOT_PASSWORD=root-password
+    volumes:
+      - zabbix-mysql-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+
+  zabbix-web-nginx-mysql:
+    image: ${registery_url}/zabbix/zabbix-web-nginx-mysql:${cluster_version}
+    container_name: zabbix-web
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_SERVER_HOST=zabbix-mysql
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix-password
+      - MYSQL_ROOT_PASSWORD=root-password
+      - ZBX_SERVER_HOST=zabbix-server-mysql
+      - PHP_TZ=UTC
+    depends_on:
+      - zabbix-server-mysql
+      - zabbix-mysql
+
+  zabbix-snmptraps:
+    image: ${registery_url}/zabbix/zabbix-snmptraps:${cluster_version}
+    container_name: zabbix-snmptraps
+    restart: unless-stopped
+    ports:
+      - "162:162/udp"
+    volumes:
+      - zabbix-snmptraps:/var/lib/zabbix/snmptraps
+    environment:
+      - ZBX_HOSTS=zabbix-server-mysql:10051
