@@ -1,0 +1,6 @@
+server.name: "kibana"
+server.host: "0.0.0.0"
+server.shutdownTimeout: "5s"
+xpack.security.enabled: true
+elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+monitoring.ui.container.elasticsearch.enabled: true

@@ -1,0 +1,6 @@
+config.reload.automatic: true
+xpack.monitoring.elasticsearch.hosts:
+- http://elasticsearch:9200
+xpack.monitoring.elasticsearch.password: Password12345678
+xpack.monitoring.elasticsearch.username: elastic
+xpack.monitoring.enabled: true

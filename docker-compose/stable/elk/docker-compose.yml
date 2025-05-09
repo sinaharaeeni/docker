@@ -1,0 +1,84 @@
+volumes:
+  elasticsearch_data:
+  kibana_data:
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: ${registery_url}/elasticsearch:${cluster_version}
+    environment:
+      - ELASTIC_USERNAME=${elastic_username}
+      - ELASTIC_PASSWORD=${elastic_password}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - 9106:9200
+    restart: always
+
+  logstash:
+    container_name: logstash
+    image: ${registery_url}/logstash:${cluster_version}
+    user: root
+    environment:
+      - XPACK_MONITORING_ELASTICSEARCH_USERNAME=${elastic_username}
+      - XPACK_MONITORING_ELASTICSEARCH_PASSWORD=${elastic_password}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/logstash/pipelines:/usr/share/logstash/pipeline
+      - ./config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./config/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - /var/log/:/var/log:ro
+      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+    depends_on:
+      - elasticsearch
+    restart: always
+
+  kibana:
+    container_name: kibana
+    image: ${registery_url}/kibana:${cluster_version}
+    environment:
+      - ELASTICSEARCH_USERNAME=${elastic_username}
+      - ELASTICSEARCH_PASSWORD=${elastic_password}
+      - server.publicBaseUrl=http://${host_ip}:9107
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - kibana_data:/usr/share/kibana/
+    ports:
+      - 9107:5601
+    depends_on:
+      - elasticsearch
+    restart: always
+
+  filebeat:
+    container_name: filebeat
+    image: ${registery_url}/elastic/filebeat:${cluster_version}
+    user: root
+    depends_on:
+      - elasticsearch
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - ELASTICSEARCH_USERNAME=${elastic_username}
+      - ELASTICSEARCH_PASSWORD=${elastic_password}
+
+  metricbeat:
+    container_name: metricbeat
+    image: ${registery_url}/elastic/metricbeat:${cluster_version}
+    user: root
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./config/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+    environment:
+      - ELASTICSEARCH_USERNAME=${elastic_username}
+      - ELASTICSEARCH_PASSWORD=${elastic_password}
