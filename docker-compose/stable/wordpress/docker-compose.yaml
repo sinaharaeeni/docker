@@ -1,0 +1,30 @@
+services:
+  wordpress:
+    container_name: wordpress
+    image: hub.hamdocker.ir/wordpress:6.8.1
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: wordpress_pass
+      WORDPRESS_DB_NAME: wp_db
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    container_name: db
+    image: hub.hamdocker.ir/mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: wp_db
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: wordpress_pass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:
