@@ -21,6 +21,7 @@ services:
       - ZBX_STARTVMWARECOLLECTORS=1
       - ZBX_STARTSNMPTRAPPERS=1
       - ZBX_SNMPTRAP_FILE=/var/lib/zabbix/snmptraps/snmptraps.log
+      - ZBX_WEBDRIVERURL=browser:4444
     volumes:
       - zabbix-server-etc:/etc/zabbix
       - zabbix-server-externalscripts:/usr/lib/zabbix/externalscripts
@@ -29,14 +30,12 @@ services:
     depends_on:
       - zabbix-mysql
 
-  zabbix-agent:
-    image: ${registery_url}/zabbix/zabbix-agent:${cluster_version}
-    container_name: zabbix-agent
+  zabbix-agent2:
+    image: ${registery_url}/zabbix/zabbix-agent2:${cluster_version}
+    container_name: zabbix-agent2
     restart: unless-stopped
-    ports:
-      - "10050:10050"
     environment:
-      - ZBX_HOSTNAME=Zabbix server
+      - ZBX_HOSTNAME=zabbix-server
       - ZBX_SERVER_HOST=zabbix-server-mysql
     volumes:
       - /:/rootfs
@@ -89,3 +88,8 @@ services:
       - zabbix-snmptraps:/var/lib/zabbix/snmptraps
     environment:
       - ZBX_HOSTS=zabbix-server-mysql:10051
+
+  zabbix-browser:
+    image: ${registery_url}/selenium/standalone-chrome:103.0-20250515
+    container_name: zabbix-browser
+    restart: unless-stopped
