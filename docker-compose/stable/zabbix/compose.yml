@@ -18,10 +18,12 @@ services:
       - MYSQL_USER=zabbix
       - MYSQL_PASSWORD=zabbix-password
       - MYSQL_ROOT_PASSWORD=root-password
-      - ZBX_STARTVMWARECOLLECTORS=1
+      - ZBX_STARTVMWARECOLLECTORS=5
+      - ZBX_ENABLEGLOBALSCRIPTS=1
       - ZBX_STARTSNMPTRAPPERS=1
       - ZBX_SNMPTRAP_FILE=/var/lib/zabbix/snmptraps/snmptraps.log
-      - ZBX_WEBDRIVERURL=browser:4444
+      - ZBX_WEBDRIVERURL=zabbix-browser:4444
+      - ZBX_STARTBROWSERPOLLERS=1
     volumes:
       - zabbix-server-etc:/etc/zabbix
       - zabbix-server-externalscripts:/usr/lib/zabbix/externalscripts
@@ -90,6 +92,7 @@ services:
       - ZBX_HOSTS=zabbix-server-mysql:10051
 
   zabbix-browser:
-    image: ${registery_url}/selenium/standalone-chrome:103.0-20250515
+    image: ${registery_url}/selenium/standalone-chrome:134.0-20250525
     container_name: zabbix-browser
     restart: unless-stopped
+    shm_size: 2gb
