@@ -1,0 +1,135 @@
+services:
+  pdns-recursor-mysql:
+    image: ${registery_url}/pschiffe/pdns-recursor:${RECURSOR_TAG}
+    networks:
+      - pdns-network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ulimits:
+      nofile:
+        soft: 10000
+        hard: 10000
+
+  mariadb:
+    image: ${registery_url}/mariadb:11-ubi
+    networks:
+      pdns-network:
+        aliases:
+          - db
+          - mysql
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mariadb:/var/lib/mysql:Z
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      timeout: 10s
+      retries: 5
+
+  phpmyadmin:
+    image: ${registery_url}/phpmyadmin:5.2.2
+    networks:
+      - pdns-network
+    ports:
+      - '80:80'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PMA_HOST=mariadb
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'curl', '-fsSL', 'http://127.0.0.1:80']
+      timeout: 10s
+      retries: 5
+
+  pdns-mysql-master:
+    image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
+    hostname: ns1.${domain}
+    networks:
+      pdns-network:
+        ipv4_address: 172.27.77.11
+        aliases:
+          - pdns
+    extra_hosts:
+      - 'ns1.${domain}:172.27.77.11'
+      - 'ns2.${domain}:172.27.77.12'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./logs/pdns-master.log:/var/log/pdns.log
+    environment:
+      - PDNS_gmysql_password=${PDNS_DB_PASSWORD}
+      - PDNS_primary=yes
+      - PDNS_api=yes
+      - PDNS_api_key=${PDNS_API_KEY}
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=0.0.0.0/0
+      - PDNS_version_string=anonymous
+      - PDNS_default_ttl=1500
+      - PDNS_allow_axfr_ips=172.27.77.12
+      - PDNS_only_notify=172.27.77.12
+    depends_on:
+      - mariadb
+    ports:
+      - "1053:53/udp"
+      - "1053:53/tcp"
+
+  pdns-mysql-slave:
+    image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
+    hostname: ns2.${domain}
+    networks:
+      pdns-network:
+        ipv4_address: 172.27.77.12
+    extra_hosts:
+      - 'ns1.${domain}:172.27.77.11'
+      - 'ns2.${domain}:172.27.77.12'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./logs/pdns-slave.log:/var/log/pdns.log
+    environment:
+      - PDNS_gmysql_dbname=powerdnsslave
+      - PDNS_gmysql_password=${PDNS_DB_PASSWORD}
+      - PDNS_secondary=yes
+      - PDNS_autosecondary=yes
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=0.0.0.0/0
+      - PDNS_version_string=anonymous
+      - PDNS_disable_axfr=yes
+      - PDNS_allow_notify_from=172.27.77.11
+      - SUPERMASTER_IPS=172.27.77.11
+    depends_on:
+      - mariadb
+      - pdns-mysql-master
+    ports:
+      - "2053:53/udp"
+      - "2053:53/tcp"
+
+  pdns-admin-mysql:
+    image: ${registery_url}/pschiffe/pdns-admin:0.4.1
+    networks:
+      pdns-network:
+        aliases:
+          - pdns-admin
+    ports:
+      - '8080:8080'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_ADMIN_SQLA_DB_PASSWORD=${PDNS_DB_PASSWORD}
+      - PDNS_VERSION=${PDNS_VERSION}
+      - PDNS_API_KEY=${PDNS_API_KEY}
+    depends_on:
+      - mariadb
+      - pdns-mysql-master
+
+networks:
+  pdns-network:
+    ipam:
+      config:
+        - subnet: 172.27.77.0/24
+          gateway: 172.27.77.1
+
+volumes:
+  mariadb:
