@@ -1,5 +1,5 @@
 services:
-  pdns-recursor-mysql:
+  pdns-recursor:
     image: ${registery_url}/pschiffe/pdns-recursor:${RECURSOR_TAG}
     networks:
       - pdns-network
@@ -26,23 +26,6 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     healthcheck:
       test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
-      timeout: 10s
-      retries: 5
-
-  phpmyadmin:
-    image: ${registery_url}/phpmyadmin:5.2.2
-    networks:
-      - pdns-network
-    ports:
-      - '8080:80'
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    environment:
-      - PMA_HOST=mariadb
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    healthcheck:
-      test: ['CMD', 'curl', '-fsSL', 'http://127.0.0.1:80']
       timeout: 10s
       retries: 5
 
@@ -76,8 +59,8 @@ services:
     depends_on:
       - mariadb
     ports:
-      - "1053:53/udp"
-      - "1053:53/tcp"
+      - "53:53/udp"
+      - "53:53/tcp"
 
   pdns-mysql-slave:
     image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
