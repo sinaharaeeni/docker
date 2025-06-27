@@ -1,18 +1,7 @@
 services:
-  pdns-recursor:
-    image: ${registery_url}/pschiffe/pdns-recursor:${RECURSOR_TAG}
-    networks:
-      - pdns-network
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    ulimits:
-      nofile:
-        soft: 10000
-        hard: 10000
-
   mariadb:
     image: ${registery_url}/mariadb:11-ubi
+    restart: unless-stopped
     networks:
       pdns-network:
         aliases:
@@ -29,14 +18,24 @@ services:
       timeout: 10s
       retries: 5
 
-  pdns-mysql-master:
-    image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
-    hostname: 'ns1.${domain}'
+  pdns-recursor:
+    image: ${registery_url}/pschiffe/pdns-recursor:5.2
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./recursor.yml:/etc/pdns-recursor/recursor.yml:ro
+    ports:
+      - 53:53/udp
+      - 53:53/tcp
     networks:
       pdns-network:
-        ipv4_address: 172.27.77.11
-        aliases:
-          - pdns
+        ipv4_address: 172.27.77.10
+
+  pdns-master:
+    image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
+    restart: unless-stopped
+    hostname: 'ns1.${domain}'
     extra_hosts:
       - 'ns1.${domain}:172.27.77.11'
       - 'ns2.${domain}:172.27.77.12'
@@ -53,21 +52,25 @@ services:
       - PDNS_webserver_allow_from=0.0.0.0/0
       - PDNS_version_string=anonymous
       - PDNS_default_ttl=1500
-      - PDNS_allow_axfr_ips=172.27.77.12
+      - PDNS_allow_axfr_ips=172.27.77.12,172.27.77.10
       - PDNS_only_notify=172.27.77.12
+      - PDNS_also_notify=172.27.77.12
+      - PDNS_default-soa-content=ns.@ hostmaster.@ 0 1800 3600 604800 5400
     depends_on:
       - mariadb
     ports:
-      - "8081:8081"
-      - "53:53/udp"
-      - "53:53/tcp"
-
-  pdns-mysql-slave:
-    image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
-    hostname: 'ns2.${domain}'
+      - "1053:53/udp"
+      - "1053:53/tcp"
     networks:
       pdns-network:
-        ipv4_address: 172.27.77.12
+        ipv4_address: 172.27.77.11
+        aliases:
+          - pdns
+
+  pdns-slave:
+    image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
+    restart: unless-stopped
+    hostname: 'ns2.${domain}'
     extra_hosts:
       - 'ns1.${domain}:172.27.77.11'
       - 'ns2.${domain}:172.27.77.12'
@@ -88,17 +91,17 @@ services:
       - SUPERMASTER_IPS=172.27.77.11
     depends_on:
       - mariadb
-      - pdns-mysql-master
+      - pdns-master
     ports:
       - "2053:53/udp"
       - "2053:53/tcp"
-
-  pdns-admin-mysql:
-    image: ${registery_url}/pschiffe/pdns-admin:0.4.1
     networks:
       pdns-network:
-        aliases:
-          - pdns-admin
+        ipv4_address: 172.27.77.12
+
+  pdns-admin:
+    image: ${registery_url}/pschiffe/pdns-admin:0.4.1
+    restart: unless-stopped
     ports:
       - '8080:8080'
     volumes:
@@ -110,7 +113,11 @@ services:
       - PDNS_API_KEY=${PDNS_API_KEY}
     depends_on:
       - mariadb
-      - pdns-mysql-master
+      - pdns-master
+    networks:
+      pdns-network:
+        aliases:
+          - pdns-admin
 
 networks:
   pdns-network:

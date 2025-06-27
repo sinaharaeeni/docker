@@ -1,0 +1,45 @@
+######### SECTION incoming #########
+incoming:
+#### If set, only allow these comma separated netmasks to recurse
+  allow_from:
+    - 127.0.0.0/8
+    - 10.0.0.0/8
+    - 169.254.0.0/16
+    - 192.168.0.0/16
+    - 172.16.0.0/12
+#### IP addresses to listen on, separated by spaces or commas. Also accepts ports.
+  listen:
+    - 0.0.0.0
+
+######### SECTION logging #########
+logging:
+#### Amount of logging. Higher is more. Do not set below 3
+  loglevel: 4
+
+######### SECTION recursor #########
+recursor:
+#### Zones for which we forward queries, comma separated domain=ip pairs
+  forward_zones:
+    - zone: local
+      forwarders:
+        - 172.27.77.11
+      recurse: true
+    - zone: internal
+      forwarders:
+        - 172.27.77.11
+      recurse: true
+    - zone: lan
+      forwarders:
+        - 172.27.77.11
+      recurse: true
+    - zone: ir
+      forwarders:
+        - 193.189.122.83
+        - 193.189.123.2
+        - 194.225.70.83
+      recurse: true
+      notify_allowed: true
+
+outgoing:
+  dont_query:
+    - 127.0.0.0/8
