@@ -1,6 +1,6 @@
 # Build for deploy local service
-# Last modified: 2025/04/02
-# Version: 1.9
+# Last modified: 2025/07/04
+# Version: 1.10
 
 volumes:
   traefik_log:
@@ -16,7 +16,7 @@ volumes:
 
 services:
   traefik:
-    image: docker.io/library/traefik:v3.3.5
+    image: docker.io/library/traefik:v3.4.3
     restart: always
     ports:
       - 80:80
@@ -32,14 +32,14 @@ services:
     image: docker.io/traefik/whoami:v1.11
 
   portainer:
-    image: docker.io/portainer/portainer-ee:2.27.3
+    image: docker.io/portainer/portainer-ee:2.31.3
     restart: unless-stopped
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
         - portainer_data:/data/:rw
 
   nexus:
-    image: docker.io/sonatype/nexus3:3.79.0
+    image: docker.io/sonatype/nexus3:3.81.1
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -60,7 +60,7 @@ services:
       - NEXUS_ADMIN_PASSWORD=Sin@2022
 
   prometheus:
-    image: docker.io/prom/prometheus:v3.2.1
+    image: docker.io/prom/prometheus:v3.4.2
     restart: always
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -68,7 +68,7 @@ services:
       - prometheus_data:/prometheus:rw
 
   grafana:
-    image: docker.io/grafana/grafana:11.6.0
+    image: docker.io/grafana/grafana:11.6.3
     restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana:rw
@@ -100,7 +100,7 @@ services:
       - /:/rootfs:ro
 
   postgres:
-    image: docker.io/library/postgres:17.4
+    image: docker.io/library/postgres:17.5
     restart: unless-stopped
     environment:
       POSTGRES_USER: myuser
