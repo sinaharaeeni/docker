@@ -1,3 +1,13 @@
+networks:
+  pdns-network:
+    ipam:
+      config:
+        - subnet: 172.27.77.0/28
+          gateway: 172.27.77.1
+
+volumes:
+  mariadb:
+
 services:
   mariadb:
     image: ${registery_url}/mariadb:11-ubi
@@ -17,20 +27,6 @@ services:
       test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
       timeout: 10s
       retries: 5
-
-  pdns-recursor:
-    image: ${registery_url}/pschiffe/pdns-recursor:5.2
-    restart: unless-stopped
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - ./recursor.yml:/etc/pdns-recursor/recursor.yml:ro
-    ports:
-      - 53:53/udp
-      - 53:53/tcp
-    networks:
-      pdns-network:
-        ipv4_address: 172.27.77.10
 
   pdns-master:
     image: ${registery_url}/pschiffe/pdns-mysql:${PDNS_MYSQL_TAG}
@@ -52,7 +48,7 @@ services:
       - PDNS_webserver_allow_from=0.0.0.0/0
       - PDNS_version_string=anonymous
       - PDNS_default_ttl=1500
-      - PDNS_allow_axfr_ips=172.27.77.12,172.27.77.10
+      - PDNS_allow_axfr_ips=172.27.77.10,172.27.77.12
       - PDNS_only_notify=172.27.77.12
       - PDNS_also_notify=172.27.77.12
       - PDNS_default-soa-content=ns.@ hostmaster.@ 0 1800 3600 604800 5400
@@ -99,6 +95,20 @@ services:
       pdns-network:
         ipv4_address: 172.27.77.12
 
+  pdns-recursor:
+    image: ${registery_url}/pschiffe/pdns-recursor:5.2
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./recursor.yml:/etc/pdns-recursor/recursor.yml:ro
+    ports:
+      - 3053:53/udp
+      - 3053:53/tcp
+    networks:
+      pdns-network:
+        ipv4_address: 172.27.77.10
+
   pdns-admin:
     image: ${registery_url}/pschiffe/pdns-admin:0.4.1
     restart: unless-stopped
@@ -118,13 +128,3 @@ services:
       pdns-network:
         aliases:
           - pdns-admin
-
-networks:
-  pdns-network:
-    ipam:
-      config:
-        - subnet: 172.27.77.0/28
-          gateway: 172.27.77.1
-
-volumes:
-  mariadb:

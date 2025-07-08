@@ -5,8 +5,8 @@ incoming:
     - 127.0.0.0/8
     - 10.0.0.0/8
     - 169.254.0.0/16
-    - 192.168.0.0/16
     - 172.16.0.0/12
+    - 192.168.0.0/16
 #### IP addresses to listen on, separated by spaces or commas. Also accepts ports.
   listen:
     - 0.0.0.0
@@ -23,23 +23,25 @@ recursor:
     - zone: local
       forwarders:
         - 172.27.77.11
+        - 172.27.77.12
       recurse: true
     - zone: internal
       forwarders:
         - 172.27.77.11
+        - 172.27.77.12
       recurse: true
     - zone: lan
       forwarders:
         - 172.27.77.11
+        - 172.27.77.12
       recurse: true
-    - zone: ir
+    - zone: home
       forwarders:
-        - 193.189.122.83
-        - 193.189.123.2
-        - 194.225.70.83
+        - 172.27.77.11
+        - 172.27.77.12
+  forward_zones_recursive:
+    - zone: .
+      forwarders:
+        - 78.157.42.100 # ElectroDNS
+        - 78.157.42.101 # ElectroDNS
       recurse: true
-      notify_allowed: true
-
-outgoing:
-  dont_query:
-    - 127.0.0.0/8
