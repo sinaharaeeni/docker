@@ -1,3 +1,8 @@
+######### SECTION dnssec #########
+dnssec:
+##### DNSSEC mode: off/process-no-validate/process (default)/log-fail/validate
+  validation: process-no-validate
+
 ######### SECTION incoming #########
 incoming:
 #### If set, only allow these comma separated netmasks to recurse
@@ -39,7 +44,7 @@ recursor:
       forwarders:
         - 172.27.77.11
         - 172.27.77.12
-  forward_zones_recursive:
+  forward_zones_recurse:
     - zone: .
       forwarders:
         - 78.157.42.100 # ElectroDNS
