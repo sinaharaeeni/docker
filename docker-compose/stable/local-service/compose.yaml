@@ -1,5 +1,5 @@
 # Build for deploy local service
-# Last modified: 2025/07/04
+# Last modified: 2025/07/17
 # Version: 1.10
 
 volumes:
@@ -25,8 +25,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./config/traefik/letsencrypt:/etc/letsencrypt:rw
       - traefik_log:/var/log/traefik:rw
+    environment:
+      - CF_DNS_API_TOKEN=HN-SN5KdAbBUUtlANgdQIuGJXTPTIUcWuSnF3ptv
+      - CF_API_EMAIL=shraeeni@gmail.com
 
   whoami:
     image: docker.io/traefik/whoami:v1.11
@@ -35,8 +38,8 @@ services:
     image: docker.io/portainer/portainer-ee:2.31.3
     restart: unless-stopped
     volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
-        - portainer_data:/data/:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data/:rw
 
   nexus:
     image: docker.io/sonatype/nexus3:3.81.1
@@ -88,7 +91,7 @@ services:
       - /etc/machine-id:/etc/machine-id:ro
       - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
     privileged: true
-    devices: 
+    devices:
       - "/dev/kmsg"
 
   node-exporter:

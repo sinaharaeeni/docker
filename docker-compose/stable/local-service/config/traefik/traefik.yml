@@ -1,3 +1,4 @@
+# ./config/traefik/traefik.yml
 global:
   checkNewVersion: true
   sendAnonymousUsage: false
@@ -14,7 +15,8 @@ entryPoints:
   websecure:
     address: ":443"
     http:
-      tls: {}
+      tls:
+        certResolver: cloudflare
   metrics:
     address: ":8082"
 
@@ -30,6 +32,16 @@ providers:
     filename: "/etc/traefik/dynamic.yml"
     watch: true
 
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: sharaeeni@gmail.com
+      storage: /etc/letsencrypt/acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+
 metrics:
   prometheus:
     entryPoint: "metrics"
@@ -42,8 +54,8 @@ accessLog:
   format: json
   filters:
     statusCodes:
-      - "400-499"  # Log client errors (4xx)
-      - "500-599"  # Log server errors (5xx)
+      - "400-499" # Log client errors (4xx)
+      - "500-599" # Log server errors (5xx)
   fields:
     defaultMode: keep
     headers:

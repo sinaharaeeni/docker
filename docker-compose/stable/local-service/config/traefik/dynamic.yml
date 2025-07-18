@@ -1,3 +1,5 @@
+# ./config/traefik/dynamic.yml
+
 http:
   routers:
     zabbix:
@@ -5,126 +7,144 @@ http:
       service: zabbix
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     portainer:
       rule: "Host(`portainer.sinaharaeeni.ir`)"
       service: portainer
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     jupyter:
       rule: "Host(`jupyter.sinaharaeeni.ir`)"
       service: jupyter
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     traefik-router:
       rule: "Host(`traefik.sinaharaeeni.ir`)"
       service: api@internal
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     grafana:
       rule: "Host(`grafana.sinaharaeeni.ir`)"
       service: grafana
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     nexus:
       rule: "Host(`nexus.sinaharaeeni.ir`)"
       service: nexus
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     nexus-registry:
       rule: "Host(`registry.sinaharaeeni.ir`)"
       service: nexus-registry
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     prometheus:
       rule: "Host(`prometheus.sinaharaeeni.ir`)"
       service: prometheus
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     elasticsearch:
       rule: "Host(`elastic.sinaharaeeni.ir`)"
       service: elasticsearch
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     kibana:
       rule: "Host(`kibana.sinaharaeeni.ir`)"
       service: kibana
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     cadvisor:
       rule: "Host(`cadvisor.sinaharaeeni.ir`)"
       service: cadvisor
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     node-exporter:
       rule: "Host(`node-exporter.sinaharaeeni.ir`)"
       service: node-exporter
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     openstack:
       rule: "Host(`openstack.sinaharaeeni.ir`)"
       service: openstack
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
-    cockpit:
-      rule: "Host(`cockpit.sinaharaeeni.ir`)"
-      service: cockpit
-      entryPoints:
-        - websecure
-      tls: {}
+    # cockpit:
+    #   rule: "Host(`cockpit.sinaharaeeni.ir`)"
+    #   service: cockpit
+    #   entryPoints:
+    #     - websecure
+    #   tls:
+    #     certResolver: cloudflare
 
     n8n:
       rule: "Host(`n8n.sinaharaeeni.ir`)"
       service: n8n
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     ollama:
       rule: "Host(`ollama.sinaharaeeni.ir`)"
       service: ollama
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     whoami:
       rule: "Host(`whoami.sinaharaeeni.ir`)"
       service: whoami
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
     mlflow:
       rule: "Host(`mlflow.sinaharaeeni.ir`)"
       service: mlflow
       entryPoints:
         - websecure
-      tls: {}
+      tls:
+        certResolver: cloudflare
 
   services:
     zabbix:
@@ -187,11 +207,11 @@ http:
         servers:
           - url: "http://172.27.75.100:9999"
 
-    cockpit:
-      loadBalancer:
-        servers:
-          - url: "https://192.168.1.242:9090"
-        serversTransport: ssl-ignore
+    # cockpit:
+    #   loadBalancer:
+    #     servers:
+    #       - url: "https://192.168.1.242:9090"
+    #   serversTransports: ssl-ignore
 
     n8n:
       loadBalancer:
@@ -211,13 +231,8 @@ http:
     mlflow:
       loadBalancer:
         servers:
-          - url: "http://mlflow::5000"
+          - url: "http://mlflow:5000"
 
-  serversTransports:
-    ssl-ignore:
-      insecureSkipVerify: true
-
-tls:
-  certificates:
-    - certFile: "/etc/letsencrypt/live/sinaharaeeni.ir/fullchain.pem"
-      keyFile: "/etc/letsencrypt/live/sinaharaeeni.ir/privkey.pem"
+  # serversTransports:
+  #   ssl-ignore:
+  #     insecureSkipVerify: true
