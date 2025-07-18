@@ -106,13 +106,13 @@ http:
       tls:
         certResolver: cloudflare
 
-    # cockpit:
-    #   rule: "Host(`cockpit.sinaharaeeni.ir`)"
-    #   service: cockpit
-    #   entryPoints:
-    #     - websecure
-    #   tls:
-    #     certResolver: cloudflare
+    cockpit:
+      rule: "Host(`cockpit.sinaharaeeni.ir`)"
+      service: cockpit
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
 
     n8n:
       rule: "Host(`n8n.sinaharaeeni.ir`)"
@@ -207,11 +207,11 @@ http:
         servers:
           - url: "http://172.27.75.100:9999"
 
-    # cockpit:
-    #   loadBalancer:
-    #     servers:
-    #       - url: "https://192.168.1.242:9090"
-    #   serversTransports: ssl-ignore
+    cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.242:9090"
+        serversTransport: ssl-ignore
 
     n8n:
       loadBalancer:
@@ -233,6 +233,6 @@ http:
         servers:
           - url: "http://mlflow:5000"
 
-  # serversTransports:
-  #   ssl-ignore:
-  #     insecureSkipVerify: true
+  serversTransports:
+    ssl-ignore:
+      insecureSkipVerify: true
