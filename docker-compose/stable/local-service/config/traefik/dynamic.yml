@@ -205,7 +205,7 @@ http:
     openstack:
       loadBalancer:
         servers:
-          - url: "http://172.27.75.100:9999"
+          - url: "http://172.27.70.100:9999"
 
     cockpit:
       loadBalancer:
